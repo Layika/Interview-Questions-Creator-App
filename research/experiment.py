@@ -138,4 +138,26 @@ ques_list = ques.split("\n")
 
 from langchain_classic.chains import RetrievalQA
 
+answer_generation_chain = RetrievalQA.from_chain_type(
+                          llm = llm_answer_gen,
+                          chain_type = "stuff",
+                          retriever = vector_store.as_retriever()
+)
+
+
+#Answer each question and save to a file
+for question in ques_list:
+    print("Question: ", question),
+    answer = answer_generation_chain.run(question)
+    print("Answer: ", answer)
+    print("------------------------------------------------------")
+    # Save answer to file
+    with open("answers.txt", "a") as f:
+        f.write("Question: " + question + "\\n")
+        f.write("Answer: " + answer + "\\n")
+        f.write("------------------------------------------------")
+
+
+
+
 
