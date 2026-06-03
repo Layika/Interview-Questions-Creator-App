@@ -67,7 +67,7 @@ splitter_ans_gen = TokenTextSplitter(
 document_answer_gen = splitter_ans_gen.split_documents(document_ques_gen)
 #print(len(document_ques_gen))
 
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 llm_ques_gen_pipeline = ChatOpenAI(
     model = "llama-3.3-70b-versatile",
     temperature = 0.3
@@ -105,5 +105,37 @@ We have the option to refine the existing questions or add new ones.
 
 Given the new context, refine the original questions in English.
 If the context is not helpful, please provide the original questions.
-QUESTIONS:                
+QUESTIONS:               
 """)
+
+REFINE_PROMPT_QUESTIONS = PromptTemplate(
+    input_variables = ["existing_answer", "text"],
+    template = refine_template
+)
+
+from langchain_classic.chains.summarize import load_summarize_chain
+
+ques_gen_chain = load_summarize_chain(llm = llm_ques_gen_pipeline,
+                                      chain_type = "refine",
+                                      verbose = True,
+                                      question_prompt = PROMPT_QUESTIONS,
+                                      refine_prompt = REFINE_PROMPT_QUESTIONS)
+
+ques = ques_gen_chain.run(document_ques_gen)
+#print(ques)
+
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings()
+
+from langchain_community.vectorstores import FAISS
+
+vector_store = FAISS.from_documents(document_answer_gen, embeddings)
+
+llm_answer_gen = ChatOpenAI(temperature=0.1, model="llama-3.3-70b-versatile")
+
+ques_list = ques.split("\n")
+
+from langchain_classic.chains import RetrievalQA
+
+
