@@ -23,7 +23,6 @@ os.environ["OPENAI_BASE_URL"] = "https://api.groq.com/openai/v1"
 def file_processing(file_path):
 
     #Load data from the pdf
-    file_path = "../data/SDGs.pdf" #go up one folder, Since the script code is running inside the research folder, you tell Python to look outside its current folder first
     loader = PyPDFLoader(file_path)
     data = loader.load()
 
