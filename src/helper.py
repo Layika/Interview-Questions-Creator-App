@@ -4,7 +4,7 @@ from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains.summarize import load_summarize_chain
-from langchain_openai import OpenAIEmbeddings
+from langchain_groq import GroqEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_classic.chains import RetrievalQA
 from src.prompt import *
@@ -104,8 +104,19 @@ def llm_pipeline(file_path):
 
     ques = ques_gen_chain.run(document_ques_gen)
 
+    """
+    embeddings = OpenAIEmbeddings(
+        model="bge-large-en-v1.5",  # wired to a groq model
+        openai_api_key=os.getenv("GROQ_API_KEY"),
+        openai_base_url="https://api.groq.com/openai/v1",
+        chunk_size = 1000
+    )
+    """ 
+    embeddings = GroqEmbeddings(
+    model="bge-large-en-v1.5",
+    groq_api_key=os.getenv("GROQ_API_KEY")
+    )
 
-    embeddings = OpenAIEmbeddings()
 
     vector_store = FAISS.from_documents(document_answer_gen, embeddings)
 
